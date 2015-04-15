@@ -5,3 +5,7 @@ traininglabels: a vector of ground truth labels for every digit from trainingima
 testimages: 1000 test digits (around 100 from each class), encoded in the same format as the training digits.
 
 testlabels: ground truth labels for testimages.
+
+
+手写数字识别学习程序 lua脚本编制 作者 空力使
+支持28*28像素
