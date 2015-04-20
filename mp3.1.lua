@@ -61,10 +61,96 @@ function smooth()
   end    
 end  
 
+function readtest()
+ local f = assert(io.open("testlabels", 'r'))
+  for i=1,500 do
+     testl[i]=f:read("*number")
+  end
+  f:close()
+
+  local f=assert(io.open("testimages", 'r'))   
+  testf={}
+  for i=1,500 do
+     testf[i]={}
+     for j=1,28 do
+       testf[i][j]={}
+       for k=1,28 do
+          testf[i][j][k]=0
+       end   
+     end
+  end
+
+  for i=1,500 do
+    for j=1,28 do
+      local line=f:read("*line")
+      --print(line)
+      for k=1,28 do
+        local tempc=string.sub(line,k,k)
+        if not(tempc==" ") then
+          testf[i][j][k]=testf[i][j][k]+1
+        end  
+      end  
+    end
+  end  
+
+  f:close()  
+end
+
+function printlabel()
+  for i=1,500 do
+    print(testresult[i])
+  end
+end
+
+function test()
+  p={}
+  for i=0,9 do
+    p[i]=count[i]/5000
+  end
+  
+  testresult={} --record the test result
+  for i=1,500 do
+    local max=0
+    local curlable=0
+    for j=0,9 do
+      sum=math.log(p[j])
+      
+      for k=1,28 do
+        for l=1,28 do
+          print(testf[i][k][l]*feature[j][k][l])
+          sum=sum+math.log(testf[i][k][l]*feature[j][k][l])
+          print(sum)
+        end
+      end
+
+      if sum>max then
+        max=sum
+        curlable=j
+      end
+    end
+    testresult[i]=curlable
+  end      
+end  
+
+
+function eval()
+  local count=0
+  for i=1,500 do
+    if not(testresult[i]==testl[i]) then
+      count=count+1
+    end
+  end
+  print(count)    
+end
+
 
 tl={}  --training label table
+testl={} --test label table
 laplacek=1
 readtrain()
 smooth()
-
-printtable()
+readtest()
+test()
+eval()
+printlabel()
+--printtable()
