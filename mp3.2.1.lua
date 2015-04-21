@@ -39,15 +39,44 @@ function readtrain()
   f:close()
 end	
 
-function train()
-    normaltrain={}
-	spamtrain={}
+function insert(tablei,tableip,wo,va)  --insert sort
+  local pp=1
+  if tablei[pp][1] then
+    while (pp<tableip) and (tablei[pp][2]>va)  do
+      pp=pp+1
+    end
+    print(pp,"pp")
+    for i=tableip-1,pp,-1 do
+      tablei[i+1][1]=tablei[i][1]
+      tablei[i+1][2]=tablei[i][2]
+    end
 
+ end
+  tablei[pp][1]=wo
+  tablei[pp][2]=va
+  for i=1,tableip do
+    print(tablei[i][1],tablei[i][2])
+  end  
+  return  
+end    
+
+function train()
+  normaltrain={}
+	spamtrain={}
+  normaltop20={}
+  normaltop20point=0
 	for k,v in pairs(word[0]) do
        normaltrain[k]=(v+laplacek)/(normalcount+laplacek*normalcount)
-    end
-    normalnotexist=laplacek/(normalcount+laplacek*normalcount)
-    
+       if normaltop20point<20 then 
+        normaltop20point=normaltop20point+1
+        normaltop20[normaltop20point]={}
+
+       end 
+       --insert(normaltop20,normaltop20point,k,normaltrain[k])
+  end
+  normalnotexist=laplacek/(normalcount+laplacek*normalcount)
+  spamtop20={}
+  spamtop20point=0
 	for k,v in pairs(word[1]) do
        spamtrain[k]=(v+laplacek)/(spamcount+laplacek*spamcount)
     end
@@ -104,16 +133,33 @@ function readtest()
      end
 
      if not(tempresult==t[i][1]) then
-       incorrect=incorrect+1
+       incorrect[t[i][1]]=incorrect[t[i][1]]+1
+       confusionmatrix[t[i][1]][tempresult]=confusionmatrix[t[i][1]][tempresult]+1
      end   
     end 	
 end	
 
-function test()
-    --normal value
+function odd()
+   oddrec={}
+   for k,v in pairs(normaltrain) do
+     if spamtrain[k] then
+       oddrec[k]=math.log(normaltrain[k]/spamtrain[k])
+     end  
+   end
+   gettop20(oddrec)   
+end
 
-end	
-
+function gettop20(oddrec)
+  top20={}
+  top20point=0
+  for k,v in pairs(oddrec) do
+       if top20point<20 then 
+        top20point=top20point+1
+        top20[top20point]={}
+       end 
+       insert(top20,top20point,k,oddrec[k])
+  end  
+end
 function printtrain()
   normaltrain={}
 	spamtrain={}
@@ -123,9 +169,37 @@ function printtrain()
 end       
 
 laplacek=1
-incorrect=0
+incorrect={}
+
+confusionmatrix={}
+  for i=0,1 do
+    confusionmatrix[i]={}
+    for j=0,1 do
+      confusionmatrix[i][j]=0
+    end  
+  end 
+
+for i=0,1 do
+  incorrect[i]=0
+end  
 readtrain()
 train()
 readtest()
-print(incorrect/260)
+
+
+print(1-incorrect[0]/normalcount)
+print(1-incorrect[1]/spamcount)
+catcount={}
+catcount[0]=normalcount
+catcount[1]=spamcount
+  for i=0,1 do
+    local tobeprint=""
+    for j=0,1 do
+      local temp=confusionmatrix[i][j]/catcount[i]
+      local ttt=string.format("%.2f", math.floor(temp*10000)/100)
+      tobeprint=tobeprint..ttt.."% "
+    end
+    print(tobeprint)
+  end   
+odd()
 --printtrain()

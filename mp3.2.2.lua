@@ -91,15 +91,64 @@ function readtest()
      end  
      print(t[i][1],curmax)
      if not(curmax==t[i][1]) then
-       incorrect=incorrect+1
+       incorrect[t[i][1]]=incorrect[t[i][1]]+1
+       confusionmatrix[t[i][1]][curmax]=confusionmatrix[t[i][1]][curmax]+1
      end  
-    end 	
+    end
+
+  for i=0,7 do
+    local tobeprint=""
+    for j=0,7 do
+      local temp=confusionmatrix[i][j]/catcount[i]
+      local ttt=string.format("%.2f", math.floor(temp*10000)/100)
+      tobeprint=tobeprint..ttt.."% "
+    end
+    print(tobeprint)
+  end     	
 end	
 
-function test()
-    --normal value
+function insert(tablei,tableip,wo,va)  --insert sort
+  local pp=1
+  if tablei[pp][1] then
+    while (pp<tableip) and (tablei[pp][2]>va)  do
+      pp=pp+1
+    end
+    print(pp,"pp")
+    for i=tableip-1,pp,-1 do
+      tablei[i+1][1]=tablei[i][1]
+      tablei[i+1][2]=tablei[i][2]
+    end
 
-end	
+ end
+  tablei[pp][1]=wo
+  tablei[pp][2]=va
+  for i=1,tableip do
+    print(tablei[i][1],tablei[i][2])
+  end  
+  return  
+end  
+
+function gettop20(oddrec)
+  top20={}
+  top20point=0
+  for k,v in pairs(oddrec) do
+       if top20point<20 then 
+        top20point=top20point+1
+        top20[top20point]={}
+       end 
+       insert(top20,top20point,k,oddrec[k])
+  end  
+end
+
+function odd(a,b)
+   oddrec={}
+   for k,v in pairs(train[a]) do
+     if train[b][k] then
+       oddrec[k]=math.log(train[a][k]/train[b][k])
+     end  
+   end
+   gettop20(oddrec)   
+end
 
 function printtrain()
     normaltrain={}
@@ -109,11 +158,28 @@ function printtrain()
     end
 end       
 
-incorrect=0
+incorrect={}
+confusionmatrix={}
+  for i=0,7 do
+    confusionmatrix[i]={}
+    for j=0,7 do
+      confusionmatrix[i][j]=0
+    end  
+  end 
+
+for i=0,7 do
+  incorrect[i]=0
+end  
 laplacek=1
 readtrain()
 train()
 readtest()
 
-print(incorrect/263)
+
+
+for i=0,7 do
+  print(i,":",1-incorrect[i]/catcount[i])
+end 
 --printtrain()
+
+odd(0,7)

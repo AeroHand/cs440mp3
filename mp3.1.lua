@@ -127,7 +127,12 @@ function test()
       --sum=0
       for k=1,28 do
         for l=1,28 do
-          local ttt=testf[i][k][l]*feature[j][k][l]
+          if testf[i][k][l]==0 then
+            albb=0
+          else
+            albb=testf[i][k][l]
+          end  
+          local ttt=albb*feature[j][k][l]
           if not(ttt==0) then
             sum=sum+math.log(ttt)
           --else
@@ -151,24 +156,74 @@ end
 
 
 function eval()
-  local count=0
+  local ccount={}
+
+  local confusionmatrix={}
+  for i=0,9 do
+    confusionmatrix[i]={}
+    for j=0,9 do
+      confusionmatrix[i][j]=0
+    end  
+  end  
+  for i=0,9 do
+    ccount[i]=0
+  end  
   for i=1,500 do
     if not(testresult[i]==testl[i]) then
-      count=count+1
+      ccount[testl[i]]=ccount[testl[i]]+1
+      confusionmatrix[testl[i]][testresult[i]]=confusionmatrix[testl[i]][testresult[i]]+1
     end
   end
-  print(count/500)    
+  sum=0
+  axb=0
+  for i=0,9 do
+    sum=sum+ccount[i]
+    axb=axb+count[i]
+    print(i,":",(1-ccount[i]/count[i]))
+  end
+  
+  for i=0,9 do
+    local tobeprint=""
+    for j=0,9 do
+      local temp=confusionmatrix[i][j]/count[i]
+      local ttt=string.format("%.2f", math.floor(temp*10000)/100)
+      tobeprint=tobeprint..ttt.."% "
+    end
+    print(tobeprint)
+  end    
+  print(1-sum/axb)    
 end
 
+function odd(a,b)
+  print("odd of number",a,"and",b,":")
+  for i=1,28 do
+    local tobprint=""
+    for j=1,28 do
+      tempodd=math.log(testf[a][i][j]/testf[b][i][j])
+      if tempodd>2 then
+        tobprint=tobprint.."+"
+      else
+        if tempodd<0 then
+          tobprint=tobprint.."-"
+        else
+          tobprint=tobprint.." "
+        end
+      end
+    end
+    print(tobprint)
+  end          
+end  
 
+--main
 tl={}  --training label table
 testl={} --test label table
 laplacek=50
 readtrain()
 smooth()
 readtest()
---smoothtest()
 test()
 eval()
---printlabel()
---printtable()
+odd(2,8)
+odd(6,8)
+odd(5,8)
+odd(7,8)
