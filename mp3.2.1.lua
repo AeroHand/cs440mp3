@@ -22,7 +22,6 @@ function readtrain()
      	temp=string.sub(email[i],point,point)
      	if temp==":" then
      	   tempword=string.sub(email[i],zhizheng,point-1)
-     	   print(tempword)
      	   zhizheng=point+1
      	end
         
@@ -31,7 +30,6 @@ function readtrain()
            	  word[e[i][1]][tempword]=0
            end	  
            word[e[i][1]][tempword]=word[e[i][1]][tempword]+tonumber(string.sub(email[i],zhizheng,point-1))
-           print(word[e[i][1]][tempword])
            zhizheng=point+1
         end
      end
@@ -56,14 +54,59 @@ function train()
     spamnotexist=laplacek/(spamcount+laplacek*spamcount)
 end  
 
+function readtest()
+    local f = assert(io.open("test_email.txt", 'r'))
+    t={}
+    tmail={}
+    tmailp={}
+    for i=1,260 do
+     tmail[i]=f:read("*line")
+     t[i]={}
+     t[i][1]=tonumber(string.sub(tmail[i],1,1))
+     tmail[i]=tmail[i].." "
+     zhizheng=3
+     tmailp[i]={}
+     tmailp[i][0]=0
+     tmailp[i][1]=0
+     for point=3,string.len(tmail[i])+1,1 do
+     	temp=string.sub(tmail[i],point,point)
+     	if temp==":" then
+     	   tempword=string.sub(tmail[i],zhizheng,point-1)
+     	   --print(tempword)
+     	   zhizheng=point+1
+     	end
+        
+        if temp==" " then
+           tempv=tonumber(string.sub(tmail[i],zhizheng,point-1))
 
+           if normaltrain[tempword] then
+             tmailp[i][0]=tmailp[i][0]+math.log(tempv*normaltrain[tempword])
+           else
+           	 tmailp[i][0]=tmailp[i][0]+math.log(tempv*normalnotexist)
+           end
 
+           if spamtrain[tempword] then
+             tmailp[i][1]=tmailp[i][1]+math.log(tempv*spamtrain[tempword])
+           else
+           	 tmailp[i][1]=tmailp[i][1]+math.log(tempv*spamnotexist)
+           end
 
+           zhizheng=point+1
+        end
+     end
 
+     if tmailp[i][1]>tmailp[i][0] then
+     	print(i,"spam",t[i][1],tmailp[i][0],tmailp[i][1])
+     else	
+        print(i,"normal",t[i][1])
+     end   
+    end 	
+end	
 
+function test()
+    --normal value
 
-
-
+end	
 
 function printtrain()
     normaltrain={}
@@ -73,6 +116,8 @@ function printtrain()
     end
 end       
 
+laplacek=1
 readtrain()
 train()
-printtrain()
+readtest()
+--printtrain()
