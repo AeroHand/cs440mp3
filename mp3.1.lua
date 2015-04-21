@@ -39,12 +39,12 @@ function readtrain()
 end
 
 function printtable()
-  for i=0,9 do
+  for i=1,30 do
     print(i)
     for j=1,28 do
       local line=""
       for k=1,28 do
-        line=line..feature[i][j][k].." "
+        line=line..testf[i][j][k].." "
       end
       print(line) 
     end
@@ -56,6 +56,16 @@ function smooth()
     for j=1,28 do
       for k=1,28 do
         feature[i][j][k]=(feature[i][j][k]+laplacek)/(count[i]+laplacek*count[i])
+      end
+    end
+  end    
+end  
+
+function smoothtest()
+  for i=1,500 do
+    for j=1,28 do
+      for k=1,28 do
+        testf[i][j][k]=(testf[i][j][k]+laplacek)/(500+laplacek*500)
       end
     end
   end    
@@ -98,7 +108,7 @@ end
 
 function printlabel()
   for i=1,500 do
-    print(testresult[i])
+    --print(testresult[i])
   end
 end
 
@@ -110,19 +120,26 @@ function test()
   
   testresult={} --record the test result
   for i=1,500 do
-    local max=0
+    local max=nil
     local curlable=0
     for j=0,9 do
       sum=math.log(p[j])
-      
+      --sum=0
       for k=1,28 do
         for l=1,28 do
-          print(testf[i][k][l]*feature[j][k][l])
-          sum=sum+math.log(testf[i][k][l]*feature[j][k][l])
-          print(sum)
+          local ttt=testf[i][k][l]*feature[j][k][l]
+          if not(ttt==0) then
+            sum=sum+math.log(ttt)
+          --else
+          --  sum=sum+math.log(notexist)
+          end  
+          --print(sum)
         end
       end
-
+      if not(max) then
+        max=sum
+        curlable=j
+      end  
       if sum>max then
         max=sum
         curlable=j
@@ -140,17 +157,18 @@ function eval()
       count=count+1
     end
   end
-  print(count)    
+  print(count/500)    
 end
 
 
 tl={}  --training label table
 testl={} --test label table
-laplacek=1
+laplacek=50
 readtrain()
 smooth()
 readtest()
+--smoothtest()
 test()
 eval()
-printlabel()
+--printlabel()
 --printtable()

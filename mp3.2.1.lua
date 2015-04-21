@@ -96,9 +96,15 @@ function readtest()
      end
 
      if tmailp[i][1]>tmailp[i][0] then
-     	print(i,"spam",t[i][1],tmailp[i][0],tmailp[i][1])
+       tempresult=1
+     	 print(i,"spam",t[i][1])
      else	
+        tempresult=0
         print(i,"normal",t[i][1])
+     end
+
+     if not(tempresult==t[i][1]) then
+       incorrect=incorrect+1
      end   
     end 	
 end	
@@ -109,7 +115,7 @@ function test()
 end	
 
 function printtrain()
-    normaltrain={}
+  normaltrain={}
 	spamtrain={}
 	for k,v in pairs(word[0]) do
        print(k,":",v)
@@ -117,7 +123,9 @@ function printtrain()
 end       
 
 laplacek=1
+incorrect=0
 readtrain()
 train()
 readtest()
+print(incorrect/260)
 --printtrain()

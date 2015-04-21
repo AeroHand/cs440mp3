@@ -53,47 +53,46 @@ function readtest()
     t={}
     tmail={}
     tmailp={}
-    for i=1,260 do
+    for i=1,263 do
      tmail[i]=f:read("*line")
      t[i]={}
-     t[i][1]=tonumber(string.sub(tmail[i],1,1))
+     t[i][1]=tonumber(string.sub(tmail[i],1,1))  --category
      tmail[i]=tmail[i].." "
      zhizheng=3
      tmailp[i]={}
-     tmailp[i][0]=0
-     tmailp[i][1]=0
+     for j=0,7 do
+       tmailp[i][j]=0 --test point for each class
+     end  
      for point=3,string.len(tmail[i])+1,1 do
      	temp=string.sub(tmail[i],point,point)
      	if temp==":" then
      	   tempword=string.sub(tmail[i],zhizheng,point-1)
-     	   --print(tempword)
      	   zhizheng=point+1
      	end
         
         if temp==" " then
            tempv=tonumber(string.sub(tmail[i],zhizheng,point-1))
-
-           if normaltrain[tempword] then
-             tmailp[i][0]=tmailp[i][0]+math.log(tempv*normaltrain[tempword])
-           else
-           	 tmailp[i][0]=tmailp[i][0]+math.log(tempv*normalnotexist)
-           end
-
-           if spamtrain[tempword] then
-             tmailp[i][1]=tmailp[i][1]+math.log(tempv*spamtrain[tempword])
-           else
-           	 tmailp[i][1]=tmailp[i][1]+math.log(tempv*spamnotexist)
-           end
+           for kk=0,7 do
+             if train[kk][tempword] then
+               tmailp[i][kk]=tmailp[i][kk]+math.log(tempv*train[kk][tempword])
+             else
+             	 tmailp[i][kk]=tmailp[i][kk]+math.log(tempv*notexist[kk])
+             end
+           end 
 
            zhizheng=point+1
         end
      end
-
-     if tmailp[i][1]>tmailp[i][0] then
-     	print(i,"spam",t[i][1],tmailp[i][0],tmailp[i][1])
-     else	
-        print(i,"normal",t[i][1])
-     end   
+     curmax=0
+     for j=1,7 do
+       if tmailp[i][j]>tmailp[i][curmax] then
+         curmax=j
+       end
+     end  
+     print(t[i][1],curmax)
+     if not(curmax==t[i][1]) then
+       incorrect=incorrect+1
+     end  
     end 	
 end	
 
@@ -110,8 +109,11 @@ function printtrain()
     end
 end       
 
+incorrect=0
 laplacek=1
 readtrain()
 train()
 readtest()
+
+print(incorrect/263)
 --printtrain()
